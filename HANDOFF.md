@@ -8,13 +8,13 @@ Every design decision below was settled in a grilling session with Zarar (2026-1
 
 | What | Path |
 |---|---|
-| This repo (empty, `git init` done, branch `main`) | `/Users/zarar/dev/software-factory-simulation` |
-| **The model to port (source of truth)** | `/Users/zarar/dev/videos.zarar.dev/videos/2026-11-19-software-factory-costs/docs/sim/factory.mjs` (v9). Ignore `line.mjs` and `obs.mjs` (earlier toy models). |
+| This repo (public, MIT, branch `main`) | https://github.com/Arsenalist/software-factory-simulation |
+| **The model to port (source of truth)** | `videos/2026-11-19-software-factory-costs/docs/sim/factory.mjs` (v9) in the `videos.zarar.dev` checkout, a sibling of this repo. Ignore `line.mjs` and `obs.mjs` (earlier toy models). |
 | Golden numbers the port must reproduce | `.../docs/sim/results.md` (same folder) |
 | Video script (chapter names, framing, the "bill") | `.../docs/script.md` |
 | Sources for the Assumptions section | `.../docs/research.md` (source table: C3 Spotify, C5 StrongDM, C15 team size, etc.) |
-| Site that hosts it (Astro 7, static, Cloudflare) | `/Users/zarar/dev/zarar.dev` (theme: `src/styles/global.css`, layout: `src/layouts/Base.astro`) |
-| Zarar's writing voice | `/Users/zarar/dev/zarar.dev/src/content/blog/*.md` |
+| Site that hosts it (Astro 7, static, Cloudflare) | `../zarar.dev` (theme: `src/styles/global.css`, layout: `src/layouts/Base.astro`) |
+| Zarar's writing voice | `../zarar.dev/src/content/blog/*.md` |
 
 ## Settled decisions
 
@@ -78,7 +78,7 @@ Every design decision below was settled in a grilling session with Zarar (2026-1
 
 ### 7. Page on zarar.dev
 - This repo builds `dist/software-factory.js` and `dist/software-factory.css` (plus the worker chunk), served under `/software-factory/`. The entry is an ES module that exports `mount(el, options)`.
-- In `/Users/zarar/dev/zarar.dev`, add:
+- In the `zarar.dev` checkout, add:
   - `src/pages/software-factory.astro`, using `Base.astro` (site chrome, sidebar), a full-bleed mount element, and the page copy.
   - A script (for example `npm run sync` in this repo) that builds and copies `dist/` into `zarar.dev/public/software-factory/`.
   - The site uses `trailingSlash: 'always'`. Make sure the bundle's asset and worker URLs resolve under `/software-factory/`.
@@ -86,7 +86,7 @@ Every design decision below was settled in a grilling session with Zarar (2026-1
   - A short intro: this is the model from the video, so change the numbers.
   - A **video embed slot**, left empty until the video is uploaded (a clearly marked placeholder or a hidden block).
   - An **Assumptions** section: every parameter in a line or two, with sources from `research.md` where they exist (Spotify's judge veto of about 1 in 4, StrongDM's $1,000/day bar, StrongDM's 3-person team). Say plainly which numbers are guesses (for example, the 5% maintenance bug rate), and list what the model leaves out (item 1).
-  - A link to the repo, added once it's public (see 9).
+  - A link to the repo (set `repo` at the top of `software-factory.astro`).
 
 ### 8. Sharing
 - The full config goes in the **URL hash**, compact and versioned (for example `#v1=...`). Opening a link reopens that factory exactly. Copy-link button.
@@ -94,8 +94,8 @@ Every design decision below was settled in a grilling session with Zarar (2026-1
 ### 9. Repo and stack
 - Vite + TypeScript (strict) + three.js + Preact for the panel + Vitest. Keep the bundle lean: import only the three.js modules you use.
 - Commit to `main` as you go, with clear messages.
-- **Don't create a GitHub remote and don't push.** Zarar makes it public (`Arsenalist/software-factory-simulation`, MIT) after he has looked at v1. Add the `LICENSE` (MIT, Zarar Siddiqi) now.
-- **Don't deploy zarar.dev** (`npm run deploy`), and don't commit in zarar.dev unless Zarar asks.
+- The repo is public at `Arsenalist/software-factory-simulation` (MIT), since 2026-11-22. Push only when Zarar asks.
+- **Don't deploy zarar.dev** (`npm run deploy`), and don't commit or push in zarar.dev unless Zarar asks.
 
 ### 10. Video
 - Don't touch the video's script. The link goes in the YouTube description and the pinned comment later, which is outside this work.
@@ -107,7 +107,7 @@ Every design decision below was settled in a grilling session with Zarar (2026-1
 4. The 3D floor and playback. **Done when** the night-time review pile is visible and grows in playback, bug crates escape and return as fixes, hover/click works, and it holds 60 fps on a laptop and is usable on a phone, with the 2D fallback in place.
 5. The zarar.dev page and the sync script. **Done when** `astro dev --background` in zarar.dev serves `/software-factory/` working, inside the site chrome.
 6. A beauty pass. Take screenshots at desktop and phone widths, compare them against zarar.dev's home and video pages, and fix anything that looks templated, off-palette or crowded.
-7. Report to Zarar: what's done, screenshots, anything decided on his behalf (`DECISIONS.md`), and what's left (remote, deploy, the video link).
+7. Report to Zarar: what's done, screenshots, anything decided on his behalf (`DECISIONS.md`), and what's left (deploy, the video link).
 
 ## Suggested skills
 - **Pocock `tdd`**: for the engine port. The mattpocock-skills plugin is only enabled for the amplify project, so have Zarar run `/plugin` in this repo to enable `mattpocock-skills@claude-plugins-official` at project scope. If it isn't available, follow red→green→refactor by hand.

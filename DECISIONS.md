@@ -43,6 +43,6 @@ HANDOFF.md settled the design. These are the gaps I filled while building v1, ea
 - **three.js is loaded on demand** in its own chunk (about 150 kB gzipped), so the bill shows before the floor does.
 
 ## The page
-- **The page is `/software-factory/` with the sidebar off**, like the video pages. The video slot is a hidden block until `youtube` is set at the top of `software-factory.astro`, and the repo link appears when `repo` is set.
+- **The page is `/software-factory/` with the sidebar off**, like the video pages. The video slot is a hidden block until `youtube` is set at the top of `software-factory.astro`, and the repo link is set to the public GitHub repo.
 - **The judge rejects 20%, and the page says Spotify reports about 1 in 4.** That's what `BASE` has, so the copy says "I rounded down".
 - **The 2% conflict chance is called low** in the copy, next to the 20%+ rates in the agent PR studies from `research.md`.
