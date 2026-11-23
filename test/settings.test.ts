@@ -58,7 +58,11 @@ describe('presets', () => {
   test('they reproduce the video’s bills', () => {
     const t = (id: string) => total(applyPreset(DEFAULTS, PRESETS.find((p) => p.id === id)!));
     expect(t('noreview')).toBe('$1,295');
-    expect(t('maint')).toBe('$1,255');
+    expect(t('maint')).toBe('$1,070'); // maintenance at 5% buggy, results.md
+    expect(t('careful')).toBe('$1,095');
+    expect(t('noreview-2')).toBe('$1,184');
+    expect(t('noreview-agents')).toBe('$696');
+    expect(t('noreview-tests')).toBe('$956');
     expect(t('strongdm')).toBe('$1,753');
     expect(t('tests')).toBe('$946'); // script.md notes: runMany at the mid dials
   });

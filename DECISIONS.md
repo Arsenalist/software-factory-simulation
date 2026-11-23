@@ -46,3 +46,9 @@ HANDOFF.md settled the design. These are the gaps I filled while building v1, ea
 - **The page is `/software-factory/` with the sidebar off**, like the video pages. The video slot is a hidden block until `youtube` is set at the top of `software-factory.astro`, and the repo link is set to the public GitHub repo.
 - **The judge rejects 20%, and the page says Spotify reports about 1 in 4.** That's what `BASE` has, so the copy says "I rounded down".
 - **The 2% conflict chance is called low** in the copy, next to the 20%+ rates in the agent PR studies from `research.md`.
+
+## Presets after the script's v44 critique (2026-11-23)
+- **"No review on maintenance" runs maintenance at 5% buggy**, the rate the video's section 7 uses, so it shows 60% people load and $1,070. Its changes are still shown against the default, where maintenance is 15% buggy, so bug-hours read as lower (5.3 against 5.9); against a 5% reviewed baseline they'd be 10 to 20% higher, which is what the video says.
+- **"Careful review" has 4 people**, as in the video's section 8, and says so in its label ($1,095).
+- **3 no-review presets** for the bills the video's section 10 names: with 2 people ($1,184), with agents watching production ($696), and with tests catching 80% ($956).
+- **"People-hours per feature" is a readout** beside People load: the 4.2 the video's sizing rule starts from.

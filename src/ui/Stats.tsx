@@ -12,6 +12,7 @@ const STATS: Stat[] = [
   { key: 'p95', label: 'Slowest 1 in 20', fmt: fmtHours, del: delta.hours, note: '95th percentile lead time.' },
   { key: 'featuresPerDay', label: 'Features shipped a day', fmt: n1, del: delta.n1, note: 'Features that reached production: output, not demand.', higherIsBetter: true },
   { key: 'humanUtil', label: 'People load', fmt: pct, del: delta.pts, note: 'Busy hours over paid hours. Past 80% the queues grow fast.' },
+  { key: 'busyPerF', label: 'People-hours per feature', fmt: (x) => `${n1(x)} h`, del: delta.hours, note: 'Busy hours of people’s work per feature shipped: its spec, its reviews, and its share of maintenance and diagnosis. The number the sizing rule starts from.' },
   { key: 'diagShare', label: 'Diagnosis share', fmt: pct, del: delta.pts, note: 'Of people’s busy hours, the part spent on production bugs.' },
   { key: 'at9', label: '9am review pile', fmt: n1, del: delta.n1, note: 'Changes waiting for review when people walk in.' },
   { key: 'bugLivePerF', label: 'Bug-hours live per feature', fmt: (x) => `${n1(x)} h`, del: delta.hours, note: 'Hours bugs spent live in production, per feature shipped.' },
