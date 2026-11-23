@@ -75,16 +75,16 @@
 .sf-floor-stage.is-pointing { cursor: pointer; }
 .sf-floor-stage canvas { display: block; width: 100%; height: 100%; }
 .sf-floor-labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.sf-label {
-  position: absolute; left: 0; top: 0; translate: -50% -100%; white-space: nowrap; text-align: center;
-  font-size: 0.8rem; font-weight: 700; line-height: 1.15; color: var(--sf-ink); transition: color 0.6s;
+.sf-label { position: absolute; left: 0; top: 0; will-change: transform; }
+.sf-label > span {
+  display: block; translate: -50% -100%; white-space: nowrap; text-align: center; padding: 0.1em 0.45em 0.15em;
+  background: var(--sf-card); border: 1.5px solid var(--sf-ink); border-radius: 3px; font-size: 0.78rem; line-height: 1.15;
 }
-.sf-label small { display: block; font-family: var(--sf-mono); font-size: 0.72rem; font-weight: 400; color: var(--sf-muted); transition: color 0.6s; }
-.sf-label.is-hot { color: var(--sf-pine); }
+.sf-label b { display: block; font-weight: 700; }
+.sf-label small { display: block; font-family: var(--sf-mono); font-size: 0.7rem; color: var(--sf-muted); }
+.sf-label small:empty { display: none; }
+.sf-label.is-hot > span { border-color: var(--sf-pine); box-shadow: 2px 2px 0 var(--sf-pine); }
 .sf-label.is-piled small { color: var(--sf-rust); font-weight: 700; }
-.sf-floor.is-night .sf-label { color: var(--sf-paper); }
-.sf-floor.is-night .sf-label small { color: color-mix(in srgb, var(--sf-paper) 75%, var(--sf-ink)); }
-.sf-floor.is-night .sf-label.is-piled small { color: color-mix(in srgb, var(--sf-rust) 45%, var(--sf-paper)); }
 
 .sf-clock {
   position: absolute; top: 0.5rem; left: var(--sf-bleed-l); display: grid; gap: 0.1rem; pointer-events: none;
@@ -125,6 +125,8 @@
 .sf-legend .is-bug { background: var(--sf-rust); }
 .sf-legend .is-person { background: var(--sf-pine); border-radius: 50%; }
 .sf-legend .is-agent { background: var(--sf-ink); }
+.sf-legend-hint { flex-basis: 100%; }
+.sf-floor.is-flat { margin: 0; }
 
 .sf-diagram { margin-left: var(--sf-bleed-l); }
 .sf-diagram svg { display: block; width: 100%; height: auto; font-family: var(--sf-body); }
@@ -279,3 +281,18 @@
 .sf-limits b { color: var(--sf-ink); }
 
 @media (prefers-reduced-motion: reduce) { .sf *, .sf *::before, .sf *::after { transition: none !important; } }
+
+/* ---------- small screens: floor, then the bill, then the dials ---------- */
+@media (max-width: 1079px) {
+  .sf-left { display: contents; }
+  .sf-floor { order: 1; } .sf-station { order: 2; } .sf-right { order: 3; } .sf-headline { order: 4; } .sf-stats { order: 5; }
+}
+@media (max-width: 700px) {
+  .sf-floor-stage { height: clamp(320px, 92vw, 460px); }
+  .sf-label > span { font-size: 0.66rem; padding: 0 0.3em 0.05em; border-width: 1px; }
+  .sf-label small { display: none; }
+  .sf-label.is-piled small { display: block; font-size: 0.6rem; }
+  .sf-clock-time { font-size: 1.2rem; }
+  .sf-pile-note { font-size: 0.78rem; right: 0.5rem; }
+  .sf-run-status { min-width: 0; }
+}
