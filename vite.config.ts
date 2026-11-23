@@ -9,6 +9,7 @@ export default defineConfig({
   build: {
     target: 'es2022',
     cssCodeSplit: false,
+    minify: true,
     lib: { entry: 'src/index.ts', formats: ['es'], fileName: () => 'software-factory.js', cssFileName: 'software-factory' },
     rollupOptions: { output: { assetFileNames: (a) => (a.names?.[0]?.endsWith('.css') ? 'software-factory.css' : 'assets/[name]-[hash][extname]') } },
   },

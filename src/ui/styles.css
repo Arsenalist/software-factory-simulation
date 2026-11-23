@@ -234,7 +234,7 @@
 .sf-lines thead th { font-size: 0.78rem; font-weight: 700; text-align: right; color: var(--sf-muted); padding-bottom: 0.2rem; }
 .sf-lines tbody tr { border-top: 1.5px dashed var(--sf-rule); }
 .sf-lines tbody tr.is-hot { background: var(--sf-pine-wash); }
-.sf-lines th { text-align: left; font-weight: 400; padding: 0.4rem 0; display: grid; grid-template-columns: auto 1fr; gap: 0 0.5rem; align-items: center; }
+.sf-lines tbody th { text-align: left; font-weight: 400; padding: 0.4rem 0; display: grid; grid-template-columns: auto 1fr; gap: 0 0.5rem; align-items: center; }
 .sf-swatch { width: 0.75rem; height: 0.75rem; border-radius: 2px; }
 .sf-line-name { font-weight: 700; }
 .sf-lines tr.is-tokens .sf-line-name { text-decoration: underline; text-decoration-color: var(--sf-rust); text-decoration-thickness: 2px; text-underline-offset: 3px; }
