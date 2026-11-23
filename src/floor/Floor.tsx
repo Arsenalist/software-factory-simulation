@@ -73,13 +73,13 @@ export function Floor({ trace, settings, focus, onSelect, force2d }: FloorProps)
         el.style.transform = `translate(${a[id].x.toFixed(1)}px, ${a[id].y.toFixed(1)}px)`;
         const small = el.querySelector('small') as HTMLElement;
         if (id === 'production') { small.textContent = st.liveBugs.length ? `${st.liveBugs.length} bug${st.liveBugs.length > 1 ? 's' : ''} live` : 'no bugs live'; el.classList.toggle('is-piled', st.liveBugs.length > 0); }
-        else if (id === 'review' && !L.settings.review.on) { small.textContent = 'switched off'; el.classList.remove('is-piled'); }
+        else if (id === 'review' && L.settings.review.share <= 0) { small.textContent = 'nobody reviews'; el.classList.remove('is-piled'); }
         else if (QUEUED.includes(id)) { const q = st.queueLen[id as Station]; small.textContent = q ? `${q} waiting` : id === 'diagnose' ? 'no tickets' : 'clear'; el.classList.toggle('is-piled', q >= (id === 'review' ? 4 : 6)); }
         el.classList.toggle('is-hot', L.hoverId === id || L.focus === id);
       }
       // the 9am note: what was waiting for review when people walked in
       if (pileEl.current) {
-        const day = Math.floor(st.t / 24), since9 = st.t - (day * 24 + 9), show = L.settings.shift && day % 7 < 5 && since9 >= 0 && since9 < 2.2 && L.settings.review.on;
+        const day = Math.floor(st.t / 24), since9 = st.t - (day * 24 + 9), show = L.settings.shift && day % 7 < 5 && since9 >= 0 && since9 < 2.2 && L.settings.review.share > 0;
         if (show && pileShown !== day) { pileShown = day; (pileEl.current.firstElementChild as HTMLElement).textContent = String(pbk.queueLength('review', day * 24 + 9 - 1e-6)); }
         pileEl.current.classList.toggle('is-on', show);
       }
@@ -200,7 +200,7 @@ export function stationFacts(id: FloorStation, pb: Playback, state: FloorState |
   const rows: [string, string][] = [['Waiting now', String(state?.queueLen[id as Station] ?? 0)], ['Average queue', n1(st.avgQueue)], ['Average wait', fmtHours(st.avgWait)]];
   if (id === 'judge') rows.push(['Load', 'no limit']);
   else rows.push([id === 'build' || id === 'ci' ? 'Load' : 'Share of people’s paid hours', pct(st.load)]);
-  const note = id === 'review' && !s.review.on ? 'Review is switched off: changes merge straight after the judge.' : id === 'spec' || id === 'review' || id === 'diagnose' ? 'The same people write specs, review and diagnose. Diagnosis goes first, then review, then specs.' : undefined;
+  const note = id === 'review' && s.review.share <= 0 ? 'Nobody reviews: changes merge straight after the judge.' : id === 'review' && s.review.share < 1 ? `People review ${Math.round(s.review.share * 100)}% of changes. The rest merge straight after the judge.` : id === 'spec' || id === 'review' || id === 'diagnose' ? 'The same people write specs, review and diagnose. Diagnosis goes first, then review, then specs.' : undefined;
   return { rows, note };
 }
 

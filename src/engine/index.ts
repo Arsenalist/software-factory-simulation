@@ -21,7 +21,8 @@ export interface Cfg {
   agents: number; ciRunners: number;
   spec: Dist; build: Dist; ci: Dist;
   judge: Dist & { reject: number };
-  review: Dist & { on: boolean; maint: boolean; catch: number; reject: number };
+  /** share: the fraction of eligible changes a person reviews (1 = all, the video's model; 0 = none). */
+  review: Dist & { on: boolean; maint: boolean; share: number; catch: number; reject: number };
   conflictPerMerge: number;
   bugRate: number;
   maintBugRate: number | null;
@@ -45,7 +46,7 @@ export const BASE: Cfg = {
   build:  { mean: 0.75, cv: 1.2 },          // agent run incl. its own retries
   ci:     { mean: 25 / 60, cv: 0.3 },
   judge:  { mean: 0.05, cv: 0.5, reject: 0.20 },   // Spotify: judge vetoes ~1/4
-  review: { on: true, maint: true, mean: 1.0, cv: 0.5, catch: 0.5, reject: 0.10 },
+  review: { on: true, maint: true, share: 1, mean: 1.0, cv: 0.5, catch: 0.5, reject: 0.10 },
   conflictPerMerge: 0.02,   // chance per change merged while yours was in flight
   bugRate: 0.15,            // share of changes that carry a defect
   maintBugRate: null,       // maintenance changes' defect share; null = same as bugRate
@@ -177,6 +178,9 @@ export function sim(cfg: Cfg, seed: number, traced = false): Metrics & { trace?:
       push({ t: t + d, type: 'bugfound', detectDelay: d, bugId });
     }
   };
+  // Addition to v9: people can review a share of changes. At 100% (and 0%) no random number is drawn,
+  // so those two ends reproduce the video's model exactly; in between, each change is picked at random.
+  const sampled = () => cfg.review.share >= 1 || (cfg.review.share > 0 && rnd() < cfg.review.share);
   const rebuild = (job: Job, t: number, why: Outcome) => { if (job.bug) job.bug = rnd() < bugP(job.kind); leave(job, why); enqueue('build', job, t); };
 
   while (heap.length) {
@@ -198,7 +202,7 @@ export function sim(cfg: Cfg, seed: number, traced = false): Metrics & { trace?:
       case 'diagnose': leave(job, 'fix'); enqueue('build', newJob('fix', now, job.id), now); break;
       case 'build': if (!job.buildStart) { job.buildStart = now; job.mergesAtStart = merges; } leave(job, 'next'); enqueue('ci', job, now); break;
       case 'ci': if (job.bug && rnd() < cfg.testCatch) rebuild(job, now, 'caught'); else { leave(job, 'next'); enqueue('judge', job, now); } break;
-      case 'judge': if (rnd() < cfg.judge.reject) rebuild(job, now, 'reject'); else if (cfg.review.on && (cfg.review.maint || job.kind !== 'maint')) { leave(job, 'next'); enqueue('review', job, now); } else merge(job, now); break;
+      case 'judge': if (rnd() < cfg.judge.reject) rebuild(job, now, 'reject'); else if (cfg.review.on && (cfg.review.maint || job.kind !== 'maint') && sampled()) { leave(job, 'next'); enqueue('review', job, now); } else merge(job, now); break;
       case 'review': {
         const caught = job.bug && rnd() < cfg.review.catch; // same draw order as (bug && rnd() < catch) || rnd() < reject
         if (caught || rnd() < cfg.review.reject) rebuild(job, now, caught ? 'caught' : 'reject');

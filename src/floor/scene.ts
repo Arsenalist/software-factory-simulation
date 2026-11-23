@@ -418,8 +418,8 @@ export function createFloorScene(canvas: HTMLCanvasElement, pal: Palette, opts: 
       visits = pb.trace.visits;
       firstVisit.clear();
       visits.forEach((v, i) => { if (!firstVisit.has(v.job)) firstVisit.set(v.job, i); });
-      const key = [s.humans, s.agents, s.ciRunners, s.review.on].join();
-      cfg = { reviewOn: s.review.on, agentsWatch: s.prod.mode === 'agents', shift: s.shift };
+      const key = [s.humans, s.agents, s.ciRunners, s.review.share > 0].join();
+      cfg = { reviewOn: s.review.share > 0, agentsWatch: s.prod.mode === 'agents', shift: s.shift };
       if (key !== layoutKey) {
         layoutKey = key;
         L = makeLayout(s.humans, s.agents, s.ciRunners);

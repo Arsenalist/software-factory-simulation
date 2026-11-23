@@ -31,7 +31,7 @@ export function Stats({ now, baseline, pinned, isBaseline }: { now: Metrics; bas
   const ref = pinned ?? (isBaseline ? null : baseline);
   return (
     <section class="sf-stats" aria-label="How the factory ran">
-      <p class="sf-stats-key">{pinned ? 'Changes are B (now) against A (pinned).' : isBaseline ? 'These are the video’s numbers. Change a dial and each one shows how far it moved.' : 'Changes are against the video’s baseline.'}</p>
+      <p class="sf-stats-key">{pinned ? 'Changes are B (now) against A (pinned).' : isBaseline ? 'Change a dial and each number shows how far it moved.' : 'Changes are against the default factory.'}</p>
       <dl>
         {STATS.map((s) => {
           const v = now[s.key], r = ref?.[s.key];

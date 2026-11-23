@@ -3,7 +3,7 @@ import type { Metrics, Money, Trace } from '../engine';
 import { createEngine, type Engine } from '../engine/client';
 import { DEFAULTS, HEADLINE, PRESETS, activePreset, applyPreset, decodeHash, encodeHash, sameSettings, setPath, toCfg, type FloorStation, type Settings } from '../model/settings';
 import { BillCard } from './Bill';
-import { DialRow, Drawers, StationCard } from './Dials';
+import { DialRow, Drawers, StationCard, StepTimes } from './Dials';
 import { Stats } from './Stats';
 import { Floor } from '../floor/Floor';
 
@@ -86,15 +86,6 @@ export function App({ useHash }: { useHash: boolean }) {
 
   return (
     <div class="sf" onKeyDown={(e) => { if (e.key === 'Enter' && (e.target as HTMLElement).tagName === 'INPUT') runNow(latest.current); }}>
-      <nav class="sf-chapters" aria-label="Factories from the video">
-        <ul class="sf-chapters-list">
-          {PRESETS.map((p) => (
-            <li><button type="button" class="sf-chip" aria-pressed={preset?.id === p.id} onClick={() => setSettings((s) => applyPreset(s, p))}>{p.label}</button></li>
-          ))}
-        </ul>
-        <p class="sf-chapters-blurb">{preset ? preset.blurb : <><b>Your own factory.</b> Pick a chapter to go back to one of the video’s.</>}</p>
-      </nav>
-
       <div class="sf-main">
         <div class="sf-left">
           <Floor trace={result?.trace ?? null} settings={result?.settings ?? settings} focus={focus} onSelect={setFocus} />
@@ -104,11 +95,18 @@ export function App({ useHash }: { useHash: boolean }) {
             <div class="sf-headline-top">
               <h2>Change the <strong>numbers</strong></h2>
               <div class="sf-run">
+                <label class="sf-start">Start from
+                  <select value={preset?.id ?? ''} onChange={(e) => { const p = PRESETS.find((x) => x.id === (e.target as HTMLSelectElement).value); if (p) setSettings((s) => applyPreset(s, p)); }}>
+                    {!preset && <option value="">Your own numbers</option>}
+                    {PRESETS.map((p) => <option value={p.id}>{p.label}</option>)}
+                  </select>
+                </label>
                 <span class="sf-run-status" aria-live="polite">{running ? 'Running…' : result ? `${result.settings.seeds} runs in ${Math.max(1, Math.round(result.ms))} ms` : ''}</span>
                 <button type="button" class="sf-btn" onClick={() => { lastKey.current = ''; runNow(latest.current); }}>Run</button>
               </div>
             </div>
             <div class="sf-headline-grid">{HEADLINE.map((p) => <DialRow path={p} ctx={ctx} big />)}</div>
+            <StepTimes ctx={ctx} />
           </section>
 
           {now && <Stats now={now.metrics} baseline={baseline} pinned={pinned?.metrics ?? null} isBaseline={isBaseline} />}
@@ -122,18 +120,17 @@ export function App({ useHash }: { useHash: boolean }) {
               onPin={() => setPinned({ settings: now.settings, metrics: now.metrics })} onUnpin={() => setPinned(null)}
               onCopy={copy} copied={copied}
             />
-          ) : <section class="sf-bill" aria-busy="true"><header class="sf-bill-head"><h2>The bill, <strong>per feature</strong></h2><p class="sf-bill-sub">Running the factory for six months…</p></header></section>}
+          ) : <section class="sf-bill" aria-busy="true"><header class="sf-bill-head"><h2>The bill, <strong>per feature</strong></h2><p class="sf-bill-sub">Running the factory…</p></header></section>}
         </aside>
       </div>
 
       <section class="sf-more">
         <div class="sf-more-head">
           <h2>Every assumption is <strong>a dial</strong></h2>
-          {!isBaseline && <button type="button" class="sf-link" onClick={() => setSettings(structuredClone(DEFAULTS))}>Reset everything to the video’s numbers</button>}
-          <p>Each parameter of the model is here. You can also click a station on the floor to open the dials that belong to it.</p>
+          {!isBaseline && <button type="button" class="sf-link" onClick={() => setSettings(structuredClone(DEFAULTS))}>Reset everything to the defaults</button>}
+          <p>Every other parameter of the model. You can also click a station on the floor to open its dials.</p>
         </div>
         <Drawers ctx={ctx} defaults={DEFAULTS} />
-        <p class="sf-limits"><b>What the model leaves out.</b> Tokens don’t buy quality: spending more per run doesn’t lower the bug rate. Bugs have no severity, and a live bug costs the same flat rate every hour. Treat the output as the shape of the trade-offs, not a forecast.</p>
       </section>
     </div>
   );

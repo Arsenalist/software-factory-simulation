@@ -2,6 +2,14 @@
 
 HANDOFF.md settled the design. These are the gaps I filled while building v1, each picked to stay close to the video and the zarar.dev theme. Change any of them.
 
+## Changes after Zarar's first look (2026-11-22)
+- **Review is a percentage, not a switch.** This is the one change to the model: `review.share`, the fraction of eligible changes a person reviews, picked at random. At 100% and 0% no random number is drawn, so those ends still reproduce the video's numbers to the last digit (tested). In between it is new behaviour the video never ran.
+- **The chapter pills are gone.** The same example factories sit in a "Start from" menu beside Run, named by what they change.
+- **The video is mentioned once, in the page intro.** Inside the simulator it is "the default", and changes are shown "against the default".
+- **Spec, build, CI and review times sit with the main dials**, with the hours of work they add up to. Lead time stays an output: it is those hours plus the waiting.
+- **The bill says what it is**: the cost to ship one feature, with the per-day and per-month totals under it.
+- **The assumptions section is three sourced defaults, one sentence of guesses, and what the model leaves out.** The in-app note on limits was dropped as a duplicate.
+
 ## Engine
 - **`mergeCfg` merges two levels deep**, not one, so `detect.humans.p` can be overridden alone. Every experiment row in `factory.mjs` gives the same result either way (the golden tests cover them).
 - **The warm-up share (15%) has no dial.** It is part of how the video measured, not a property of a factory. Every other `BASE` parameter has one.
@@ -10,8 +18,8 @@ HANDOFF.md settled the design. These are the gaps I filled while building v1, ea
 - **StrongDM's preset uses $259.59 per run** (the model's own `1000 × 3 × 5 ÷ builds per week`, rounded to the cent) so the share link stays short. It reproduces the $687 and $1,753 in `results.md`.
 
 ## Panel and bill
-- **Chapter presets replace the model's parameters and keep the money and run dials.** "More agents, or another person?" is two buttons, one per arm of the experiment.
-- **Changes are shown against the video's baseline at the mid dials** ($1,132), whatever money preset is active. With a factory pinned, they are shown against the pin.
+- **A "Start from" example replaces the model's parameters and keeps the money and run dials.**
+- **Changes are shown against the default at the mid dials** ($1,132), whatever money preset is active. With a factory pinned, they are shown against the pin.
 - **Bill lines are listed largest first**, so "Tokens rank N of 5" is the row it sits on.
 - **Bill colours come from the site palette only**: people pine, bugs rust, waiting a pine hatch, tokens ink, CI grey. The dataviz validator passes them on colour-blind and normal-vision separation, and fails them on its lightness and chroma bands, which a two-ink palette can't meet. Every line is also labelled with its name and amount, so nothing depends on colour.
 - **Sliders stop at a sensible range; the number box goes further** (for example tokens per run: slider to $400, box to $20,000).

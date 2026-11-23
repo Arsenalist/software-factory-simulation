@@ -2,14 +2,16 @@
 // Also the dial catalogue (labels, ranges), the video's presets and the share-link encoding.
 import { BASE, MONEY, mergeCfg, type Cfg, type Money, type Overrides, type Station } from '../engine';
 
-export interface Settings extends Omit<Cfg, 'hours'> { weeks: number; seeds: number; money: Money }
+/** `review.on` is not a dial: review is on whenever the share of changes reviewed is above zero. */
+export interface Settings extends Omit<Cfg, 'hours' | 'review'> { review: Omit<Cfg['review'], 'on'>; weeks: number; seeds: number; money: Money }
 
-const { hours: _h, ...baseRest } = BASE;
-export const DEFAULTS: Settings = Object.freeze({ ...structuredClone(baseRest), weeks: 26, seeds: 9, money: { ...MONEY.mid } });
+const fromCfg = (c: Cfg) => { const { hours: _h, ...rest } = structuredClone(c); const { on, ...review } = rest.review; return { ...rest, review: { ...review, share: on ? review.share : 0 } }; };
+export const DEFAULTS: Settings = Object.freeze({ ...fromCfg(BASE), weeks: 26, seeds: 9, money: { ...MONEY.mid } });
 
 export const toCfg = (s: Settings): Cfg => {
   const { weeks, seeds: _s, money: _m, ...rest } = s;
-  return { ...structuredClone(rest), hours: 24 * 7 * weeks };
+  const c = structuredClone(rest);
+  return { ...c, review: { ...c.review, on: c.review.share > 0 }, hours: 24 * 7 * weeks };
 };
 
 type Leaf = number | boolean | string | null;
@@ -47,7 +49,7 @@ export const DIALS: Record<string, Dial> = Object.fromEntries(([
   { path: 'humans', label: 'People', kind: 'count', min: 1, max: 12, step: 1, hardMax: 40, hint: 'One pool that writes specs, reviews changes and diagnoses production bugs.' },
   { path: 'agents', label: 'Coding agents', kind: 'count', min: 1, max: 32, step: 1, hardMax: 200, hint: 'Each builds one change at a time, all 168 hours of the week.' },
   pct('bugRate', 'Changes that carry a bug', 'Share of agent changes with a defect in them.', 0.6),
-  { path: 'review.on', label: 'People review every change', kind: 'toggle' },
+  pct('review.share', 'Changes people review', 'Picked at random. The rest merge straight after the AI judge.'),
   { path: 'prod.mode', label: 'Who watches production', kind: 'choice', options: [{ value: 'humans', label: 'People' }, { value: 'agents', label: 'Agents' }] },
   { path: 'money.salary', label: 'A person, per paid hour', kind: 'usd', min: 20, max: 300, step: 5, hardMax: 2000, hint: 'Loaded: salary plus overhead. People are paid for every shift hour, busy or not.' },
   { path: 'tokensPerBuild', label: 'Tokens per agent run', kind: 'usd', min: 1, max: 400, step: 1, hardMax: 20000, hint: 'One build, including the agent’s own retries.' },
@@ -87,7 +89,7 @@ export const DIALS: Record<string, Dial> = Object.fromEntries(([
   { path: 'seeds', label: 'Runs (random seeds)', kind: 'count', min: 1, max: 25, step: 1, hint: 'Every number is the median of this many runs.' },
 ] as Dial[]).map((d) => [d.path, d]));
 
-export const HEADLINE = ['featuresPerDay', 'humans', 'agents', 'bugRate', 'review.on', 'prod.mode', 'money.salary', 'tokensPerBuild'];
+export const HEADLINE = ['featuresPerDay', 'humans', 'agents', 'bugRate', 'review.share', 'prod.mode', 'money.salary', 'tokensPerBuild'];
 export interface Drawer { id: string; title: string; note?: string; dials: string[]; pairs?: boolean }
 export const DRAWERS: Drawer[] = [
   { id: 'demand', title: 'Demand', dials: ['maintPerDay'] },
@@ -108,7 +110,7 @@ export const STATION_DIALS: Record<FloorStation, { title: string; dials: string[
   build: { title: 'Build bays', dials: ['agents', 'build.mean', 'build.cv', 'tokensPerBuild', 'bugRate', 'maintPerDay', 'maintBugRate'] },
   ci: { title: 'CI conveyor', dials: ['ciRunners', 'ci.mean', 'ci.cv', 'testCatch', 'ciPerRun'] },
   judge: { title: 'Judge gate', dials: ['judge.reject', 'judge.mean', 'judge.cv'] },
-  review: { title: 'Review desks', dials: ['review.on', 'review.maint', 'review.mean', 'review.cv', 'review.catch', 'review.reject'] },
+  review: { title: 'Review desks', dials: ['review.share', 'review.maint', 'review.mean', 'review.cv', 'review.catch', 'review.reject'] },
   merge: { title: 'Merge point', dials: ['conflictPerMerge'] },
   production: { title: 'Production', dials: ['prod.mode', 'detect.humans.p', 'detect.humans.mean', 'detect.agents.p', 'detect.agents.mean', 'prod.dupes', 'mitigate.mean', 'customerReport.mean'] },
   diagnose: { title: 'Diagnosis', dials: ['diagnose.mean', 'diagnose.cv', 'prod.dupes'] },
@@ -128,25 +130,24 @@ export const MONEY_PRESETS: { id: keyof typeof MONEY; label: string }[] = [{ id:
 export const STRONGDM_TOKENS_PER_BUILD = 259.59;
 
 export interface Preset { id: string; label: string; blurb: string; over: Overrides }
-/** Named after the video's chapters; each config is an experiment row from the model. */
+/** Example factories to start from. Each is an experiment from the model's write-up. */
 export const PRESETS: Preset[] = [
-  { id: 'baseline', label: 'The factory', blurb: 'The video’s baseline: 3 people, 8 coding agents, 3 features a day.', over: {} },
-  { id: 'agents', label: 'More agents…', blurb: '“More agents, or another person?” At 4.5 features a day, double the agents to 16.', over: { featuresPerDay: 4.5, agents: 16 } },
-  { id: 'person', label: '…or another person?', blurb: '“More agents, or another person?” At 4.5 features a day, hire a fourth person instead.', over: { featuresPerDay: 4.5, humans: 4 } },
-  { id: 'careful', label: 'Someone understands the code', blurb: 'Careful review: 100 minutes, catches 80% of bugs, and diagnosis halves to 1.5 hours.', over: { review: { mean: 1.67, catch: 0.8 }, diagnose: { mean: 1.5 } } },
-  { id: 'noreview', label: 'Drop the review?', blurb: 'StrongDM’s rule 2: code must not be reviewed by humans.', over: { review: { on: false } } },
-  { id: 'strongdm', label: 'StrongDM’s token spend', blurb: '$1,000 of tokens per person per working day, about $260 an agent run.', over: { tokensPerBuild: STRONGDM_TOKENS_PER_BUILD } },
-  { id: 'maint', label: 'No review on maintenance', blurb: 'Spotify merges most automated maintenance without a person reading it.', over: { review: { maint: false } } },
-  { id: 'telemetry', label: 'Agents read telemetry', blurb: 'Agents watch production, not people: 95% of bugs noticed in about half an hour.', over: { prod: { mode: 'agents' } } },
-  { id: 'tests', label: 'Catch it before merge', blurb: 'Tests catch 80% of bugs. Specs take 30 minutes longer and builds 20% longer.', over: { testCatch: 0.8, spec: { mean: 2.5 }, build: { mean: 0.9 } } },
-  { id: 'norollback', label: 'Bugs you can’t roll back', blurb: 'A day of cleanup before the damage stops, where a rollback took 30 minutes.', over: { mitigate: { mean: 24, cv: 1 } } },
-  { id: 'clock', label: 'Round the clock', blurb: 'The same team, staffed all 168 hours. No night for work to wait out.', over: { shift: false } },
+  { id: 'baseline', label: 'The default factory', blurb: '3 people, 8 coding agents, 3 features a day.', over: {} },
+  { id: 'agents', label: 'Busier (4.5 features a day), with 16 agents', blurb: 'More work, and twice the agents to do it.', over: { featuresPerDay: 4.5, agents: 16 } },
+  { id: 'person', label: 'Busier (4.5 features a day), with a 4th person', blurb: 'More work, and one more person.', over: { featuresPerDay: 4.5, humans: 4 } },
+  { id: 'careful', label: 'Careful review', blurb: 'Reviews take 100 minutes and catch 80% of bugs; diagnosis halves to 1.5 hours.', over: { review: { mean: 1.67, catch: 0.8 }, diagnose: { mean: 1.5 } } },
+  { id: 'noreview', label: 'No human review', blurb: 'Changes merge straight after the AI judge.', over: { review: { share: 0 } } },
+  { id: 'strongdm', label: '$1,000 of tokens per person a day', blurb: 'About $260 an agent run.', over: { tokensPerBuild: STRONGDM_TOKENS_PER_BUILD } },
+  { id: 'maint', label: 'No review on maintenance', blurb: 'People only review features and fixes.', over: { review: { maint: false } } },
+  { id: 'telemetry', label: 'Agents watch production', blurb: '95% of bugs noticed in about half an hour.', over: { prod: { mode: 'agents' } } },
+  { id: 'tests', label: 'Tests catch 80% of bugs', blurb: 'Specs take 30 minutes longer and builds 20% longer.', over: { testCatch: 0.8, spec: { mean: 2.5 }, build: { mean: 0.9 } } },
+  { id: 'norollback', label: 'Bugs you can’t roll back', blurb: 'A day of cleanup before the damage stops.', over: { mitigate: { mean: 24, cv: 1 } } },
+  { id: 'clock', label: 'People round the clock', blurb: 'The same team, staffed all 168 hours.', over: { shift: false } },
 ];
 
 /** A preset replaces the model's parameters and keeps the visitor's money and run dials. */
 export function applyPreset(s: Settings, p: Preset): Settings {
-  const { hours: _hh, ...cfg } = mergeCfg(BASE, p.over);
-  return { ...cfg, weeks: s.weeks, seeds: s.seeds, money: { ...s.money } };
+  return { ...fromCfg(mergeCfg(BASE, p.over)), weeks: s.weeks, seeds: s.seeds, money: { ...s.money } };
 }
 const MODEL_PATHS = PATHS.filter((p) => !p.startsWith('money.') && p !== 'weeks' && p !== 'seeds');
 export function activePreset(s: Settings): Preset | null {

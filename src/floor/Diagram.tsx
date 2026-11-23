@@ -16,7 +16,7 @@ export function Diagram({ pb, settings, focus, onSelect }: { pb: Playback | null
     if (!pb) return ['', ''];
     if (id === 'merge') return [`${n1(pb.merge.conflictsPerDay)} conflicts/day`, ''];
     if (id === 'production') return [`${n1(pb.production.escapedPerDay)} bugs/day`, `live ${fmtHours(pb.production.avgLiveHours)}`];
-    if (id === 'review' && !settings.review.on) return ['switched off', ''];
+    if (id === 'review' && settings.review.share <= 0) return ['nobody reviews', ''];
     const s = pb.stats[id as Station];
     return [`${n1(s.avgQueue)} waiting`, `wait ${fmtHours(s.avgWait)}`];
   };

@@ -25,7 +25,7 @@ describe('share link', () => {
   test('the baseline needs no hash', () => { expect(encodeHash(DEFAULTS)).toBe(''); });
   test('a changed factory reopens exactly', () => {
     let s = setPath(DEFAULTS, 'featuresPerDay', 4.5);
-    s = setPath(s, 'review.on', false);
+    s = setPath(s, 'review.share', 0.4);
     s = setPath(s, 'prod.mode', 'agents');
     s = setPath(s, 'maintBugRate', 0.05);
     s = setPath(s, 'detect.agents.mean', 0.25);
@@ -42,7 +42,7 @@ describe('share link', () => {
     expect(decodeHash('#about')).toBeNull();
     expect(decodeHash('#v1=AAAA')).toBeNull();
     const enc = (o: object) => '#v1=' + btoa(JSON.stringify(o)).replace(/=+$/, '');
-    expect(decodeHash(enc({ nope: 1, humans: 'x', 'review.on': 3 }))).toEqual(DEFAULTS);
+    expect(decodeHash(enc({ nope: 1, humans: 'x', 'review.on': false, shift: 3 }))).toEqual(DEFAULTS);
     expect(decodeHash(enc({ humans: 1e9, agents: -4 }))!.humans).toBe(40);
     expect(decodeHash(enc({ humans: 1e9, agents: -4 }))!.agents).toBe(1);
   });

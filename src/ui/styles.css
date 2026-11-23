@@ -296,3 +296,14 @@
   .sf-pile-note { font-size: 0.78rem; right: 0.5rem; }
   .sf-run-status { min-width: 0; }
 }
+
+/* ---------- start-from select and the feature's step times ---------- */
+.sf-start { display: inline-flex; align-items: center; gap: 0.5em; font-weight: 600; color: var(--sf-ink); }
+.sf-start select { font: inherit; font-weight: 600; max-width: 16rem; padding: 0.25em 0.5em; color: var(--sf-ink); background: var(--sf-card); border: 1.5px solid var(--sf-ink); border-radius: 4px; }
+.sf-run { flex-wrap: wrap; justify-content: flex-end; }
+.sf-steps { display: grid; gap: 0.5rem; padding-top: 0.6rem; border-top: 1.5px solid var(--sf-rule); font-size: 0.95rem; }
+.sf-steps-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.2rem 1.5rem; }
+.sf-steps-sum { font-size: 0.85rem; color: var(--sf-muted); }
+.sf-steps-row { display: flex; flex-wrap: wrap; gap: 0.5rem 1.75rem; }
+.sf-step { display: inline-flex; align-items: center; gap: 0.5em; color: var(--sf-muted); }
+.sf-step .sf-num { font-size: 1.05rem; }

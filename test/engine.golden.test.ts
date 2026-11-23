@@ -100,6 +100,20 @@ describe('experiment rows', () => {
   });
 });
 
+describe('reviewing a share of changes (added after the video)', () => {
+  test('100% is the video’s model, and 0% is its no-review run, to the last digit', () => {
+    expect(runMany({ review: { share: 1 } })).toEqual(runMany({}));
+    expect(runMany({ review: { share: 0 } })).toEqual(runMany({ review: { on: false } }));
+  });
+  test('half the changes reviewed lands between the two', () => {
+    const all = runMany({}), half = runMany({ review: { share: 0.5 } }), none = runMany({ review: { on: false } });
+    expect(half.reviewPerF).toBeGreaterThan(none.reviewPerF + 0.5);
+    expect(half.reviewPerF).toBeLessThan(all.reviewPerF - 0.5);
+    expect(half.bugLivePerF).toBeGreaterThan(all.bugLivePerF);
+    expect(half.bugLivePerF).toBeLessThan(none.bugLivePerF);
+  });
+});
+
 describe('run-to-run spread at baseline', () => {
   test('lowest and highest of the 9 seeds', () => {
     const rs = Array.from({ length: 9 }, (_, i) => sim(BASE, seedFor(i)));

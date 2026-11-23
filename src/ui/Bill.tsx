@@ -53,7 +53,7 @@ export function BillCard({ now, baseline, pinned, isBaseline, running, onMoney, 
     <section class={`sf-bill${running ? ' is-running' : ''}`} aria-label="The bill per feature">
       <header class="sf-bill-head">
         <h2>The bill, <strong>per feature</strong></h2>
-        <p class="sf-bill-sub">Median of {now.settings.seeds} runs of {now.settings.weeks} weeks</p>
+        <p class="sf-bill-sub">What it costs to ship one feature: everything the factory spends, plus what waiting and live bugs cost you, divided by the features shipped.</p>
       </header>
 
       {a ? (
@@ -65,7 +65,7 @@ export function BillCard({ now, baseline, pinned, isBaseline, running, onMoney, 
       ) : (
         <div class="sf-bill-hero">
           <span class="sf-bill-total" aria-live="polite">{usd(b.total)}</span>
-          {isBaseline ? <span class="sf-bill-vs">The video’s baseline</span> : <Diff text={vsVideo} worse={!!video && b.total > video.total} suffix={`against the video’s ${video ? usd(video.total) : ''}`} />}
+          {isBaseline ? <span class="sf-bill-vs">per feature shipped</span> : <Diff text={vsVideo} worse={!!video && b.total > video.total} suffix={`against the default ${video ? usd(video.total) : ''}`} />}
         </div>
       )}
 
@@ -99,7 +99,8 @@ export function BillCard({ now, baseline, pinned, isBaseline, running, onMoney, 
         {b.tokensRank === 1 ? 'At this spend they are the biggest line on the bill.' : `They are the ${ORDINAL[b.tokensRank]} line: ${Math.round((b.parts.tokens / b.total) * 100)}% of what a feature costs.`}
         {a && a.tokensRank !== b.tokensRank ? ` In A they rank ${a.tokensRank}.` : ''}
       </p>
-      <p class="sf-bill-day">About <b>{usd(perDay)}</b> a day for this team, at {n1(now.metrics.featuresPerDay)} features shipped a day.</p>
+      <p class="sf-bill-day">At {n1(now.metrics.featuresPerDay)} features shipped a day, that is about <b>{usd(perDay)}</b> a day, or <b>{usd(perDay * 365 / 12)}</b> a month.</p>
+      <p class="sf-bill-foot">Median of {now.settings.seeds} runs of {now.settings.weeks} weeks.</p>
 
       <div class="sf-priced">
         <span id="sf-priced-label">Priced at</span>

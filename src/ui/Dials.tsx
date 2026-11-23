@@ -95,6 +95,25 @@ export function DialRow({ path, ctx, big }: { path: string; ctx: Ctx; big?: bool
   );
 }
 
+/** How long a feature takes to make: the four steps every feature goes through, and what they add up to. */
+export function StepTimes({ ctx }: { ctx: Ctx }) {
+  const steps = ['spec.mean', 'build.mean', 'ci.mean', 'review.mean'].map((p) => DIALS[p]);
+  const v = (p: string) => getPath(ctx.settings, p) as number;
+  const people = v('spec.mean') + v('review.mean') * ctx.settings.review.share, machine = v('build.mean') + v('ci.mean');
+  const fmt = (h: number) => (h < 1 ? `${Math.round(h * 60)} min` : `${Math.round(h * 10) / 10} h`);
+  return (
+    <div class="sf-steps">
+      <div class="sf-steps-head">
+        <span class="sf-dial-label">Work in one feature</span>
+        <span class="sf-steps-sum">{fmt(people)} of a person, {fmt(machine)} of agents and CI, if nothing is sent back</span>
+      </div>
+      <div class="sf-steps-row">
+        {steps.map((d) => <label class="sf-step"><span>{d.label}</span><NumberBox d={d} value={v(d.path)} ctx={ctx} /></label>)}
+      </div>
+    </div>
+  );
+}
+
 /** Step times: one line per step, mean and variability side by side. */
 function PairTable({ dials, ctx }: { dials: string[]; ctx: Ctx }) {
   const rows = [];
