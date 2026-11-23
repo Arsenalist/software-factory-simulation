@@ -1,6 +1,6 @@
 # Software factory simulator
 
-The interactive model behind the zarar.dev video on what a software factory costs. Change the team, the agents, the bug rate and the money, and it runs the factory for six months, nine times over, and gives you the bill per feature. A 3D floor plays back the median run.
+The interactive model behind the zarar.dev video on what a software factory costs. Change the team, the agents, the bug rate and the money, and it simulates the factory for six months, nine times by default, and gives you the bill per feature. A 3D floor plays back the median run.
 
 Lives at https://zarar.dev/software-factory/.
 

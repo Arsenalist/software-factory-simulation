@@ -10,6 +10,13 @@ HANDOFF.md settled the design. These are the gaps I filled while building v1, ea
 - **The bill says what it is**: the cost to ship one feature, with the per-day and per-month totals under it.
 - **The assumptions section is three sourced defaults, one sentence of guesses, and what the model leaves out.** The in-app note on limits was dropped as a duplicate.
 
+## Changes after Zarar's second look (2026-11-22)
+- **The number of simulations sits beside Run**, default 9, up to 99. They are called "simulations" everywhere, not "runs" or "seeds".
+- **"The default factory" is spelled out** as 3 people, 8 coding agents, in the Start-from menu and under the stats.
+- **Demand and output are named apart**: "Features requested a day" is the dial, "Features shipped a day" is the result.
+- **The token dial is "Token cost of one agent run"**, and the bill line reads "2.6 agent runs × $25 of tokens". It only sets that line.
+- **Infrastructure is listed as out of scope** in what the model leaves out (the bill has tokens and CI runs only).
+
 ## Engine
 - **`mergeCfg` merges two levels deep**, not one, so `detect.humans.p` can be overridden alone. Every experiment row in `factory.mjs` gives the same result either way (the golden tests cover them).
 - **The warm-up share (15%) has no dial.** It is part of how the video measured, not a property of a factory. Every other `BASE` parameter has one.

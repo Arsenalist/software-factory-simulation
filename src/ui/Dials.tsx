@@ -12,7 +12,7 @@ const show = (d: Dial, v: number) => {
   return String(Math.round(x * 100) / 100);
 };
 
-function NumberBox({ d, value, ctx, disabled, label }: { d: Dial; value: number; ctx: Ctx; disabled?: boolean; label?: string }) {
+export function NumberBox({ d, value, ctx, disabled, label }: { d: Dial; value: number; ctx: Ctx; disabled?: boolean; label?: string }) {
   const [text, setText] = useState(show(d, value));
   const focused = useRef(false);
   useEffect(() => { if (!focused.current) setText(show(d, value)); }, [value, d]);

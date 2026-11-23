@@ -172,7 +172,9 @@
 .sf-headline-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem 1.5rem; }
 .sf-headline-top h2 { font-size: 1.6rem; }
 .sf-run { display: inline-flex; align-items: center; gap: 0.9rem; font-size: 0.85rem; color: var(--sf-muted); }
-.sf-run-status { font-family: var(--sf-mono); min-width: 11em; text-align: right; }
+.sf-run-status { font-family: var(--sf-mono); min-width: 7.5em; text-align: right; }
+.sf-sims { display: inline-flex; align-items: center; gap: 0.5em; font-weight: 600; color: var(--sf-ink); }
+.sf-sims .sf-num input { width: 2.2em; }
 .sf-headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr)); gap: 0 2rem; }
 .sf-headline-grid .sf-dial { align-content: start; grid-template-rows: auto auto; }
 .sf-headline-grid .sf-dial .sf-num { font-size: 1.15rem; }
@@ -299,7 +301,7 @@
 
 /* ---------- start-from select and the feature's step times ---------- */
 .sf-start { display: inline-flex; align-items: center; gap: 0.5em; font-weight: 600; color: var(--sf-ink); }
-.sf-start select { font: inherit; font-weight: 600; max-width: 16rem; padding: 0.25em 0.5em; color: var(--sf-ink); background: var(--sf-card); border: 1.5px solid var(--sf-ink); border-radius: 4px; }
+.sf-start select { font: inherit; font-weight: 600; max-width: 22rem; padding: 0.25em 0.5em; color: var(--sf-ink); background: var(--sf-card); border: 1.5px solid var(--sf-ink); border-radius: 4px; }
 .sf-run { flex-wrap: wrap; justify-content: flex-end; }
 .sf-steps { display: grid; gap: 0.5rem; padding-top: 0.6rem; border-top: 1.5px solid var(--sf-rule); font-size: 0.95rem; }
 .sf-steps-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.2rem 1.5rem; }

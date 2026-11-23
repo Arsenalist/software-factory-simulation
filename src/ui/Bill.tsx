@@ -13,8 +13,8 @@ function working(line: BillLine, m: Metrics, s: Settings): string {
     case 'people': return `${n1(m.paidPerF)} paid h × ${usd(s.money.salary)}`;
     case 'waiting': return `${n1(m.waitPerF)} h in the line × ${usdFine(s.money.delay)}`;
     case 'bugs': return `${n1(m.bugLivePerF)} live h × ${usdFine(s.money.bug)}`;
-    case 'tokens': return `${n1(m.tokensPerF / Math.max(1e-9, s.tokensPerBuild))} agent runs × ${usdFine(s.tokensPerBuild)}`;
-    case 'ci': return `${n1(m.ciPerF / Math.max(1e-9, s.ciPerRun))} runs × ${usdFine(s.ciPerRun)}`;
+    case 'tokens': return `${n1(m.tokensPerF / Math.max(1e-9, s.tokensPerBuild))} agent runs × ${usdFine(s.tokensPerBuild)} of tokens`;
+    case 'ci': return `${n1(m.ciPerF / Math.max(1e-9, s.ciPerRun))} CI runs × ${usdFine(s.ciPerRun)}`;
   }
 }
 
@@ -53,7 +53,7 @@ export function BillCard({ now, baseline, pinned, isBaseline, running, onMoney, 
     <section class={`sf-bill${running ? ' is-running' : ''}`} aria-label="The bill per feature">
       <header class="sf-bill-head">
         <h2>The bill, <strong>per feature</strong></h2>
-        <p class="sf-bill-sub">What it costs to ship one feature: everything the factory spends, plus what waiting and live bugs cost you, divided by the features shipped.</p>
+        <p class="sf-bill-sub">What one shipped feature costs: people, tokens and CI, plus the cost of waiting and of live bugs.</p>
       </header>
 
       {a ? (
@@ -100,7 +100,7 @@ export function BillCard({ now, baseline, pinned, isBaseline, running, onMoney, 
         {a && a.tokensRank !== b.tokensRank ? ` In A they rank ${a.tokensRank}.` : ''}
       </p>
       <p class="sf-bill-day">At {n1(now.metrics.featuresPerDay)} features shipped a day, that is about <b>{usd(perDay)}</b> a day, or <b>{usd(perDay * 365 / 12)}</b> a month.</p>
-      <p class="sf-bill-foot">Median of {now.settings.seeds} runs of {now.settings.weeks} weeks.</p>
+      <p class="sf-bill-foot">{now.settings.seeds === 1 ? 'One simulation' : `Median of ${now.settings.seeds} simulations`} of {now.settings.weeks} weeks{now.settings.seeds === 1 ? '' : ' each'}.</p>
 
       <div class="sf-priced">
         <span id="sf-priced-label">Priced at</span>

@@ -45,16 +45,16 @@ const pct = (path: string, label: string, hint?: string, max = 1): Dial => ({ pa
 const cv = (path: string): Dial => ({ path, label: 'Variability', kind: 'cv', min: 0, max: 2, step: 0.05, hardMax: 4 });
 
 export const DIALS: Record<string, Dial> = Object.fromEntries(([
-  { path: 'featuresPerDay', label: 'Features a day', kind: 'rate', min: 0.5, max: 10, step: 0.5, hardMax: 40, hint: 'Requests per calendar day, asked for 9 to 5 on weekdays.' },
+  { path: 'featuresPerDay', label: 'Features requested a day', kind: 'rate', min: 0.5, max: 10, step: 0.5, hardMax: 40, hint: 'Demand, not output: what gets asked for, averaged over all 7 days. Requests come in 9 to 5 on weekdays. What ships is under “Features shipped a day”.' },
   { path: 'humans', label: 'People', kind: 'count', min: 1, max: 12, step: 1, hardMax: 40, hint: 'One pool that writes specs, reviews changes and diagnoses production bugs.' },
   { path: 'agents', label: 'Coding agents', kind: 'count', min: 1, max: 32, step: 1, hardMax: 200, hint: 'Each builds one change at a time, all 168 hours of the week.' },
   pct('bugRate', 'Changes that carry a bug', 'Share of agent changes with a defect in them.', 0.6),
   pct('review.share', 'Changes people review', 'Picked at random. The rest merge straight after the AI judge.'),
   { path: 'prod.mode', label: 'Who watches production', kind: 'choice', options: [{ value: 'humans', label: 'People' }, { value: 'agents', label: 'Agents' }] },
   { path: 'money.salary', label: 'A person, per paid hour', kind: 'usd', min: 20, max: 300, step: 5, hardMax: 2000, hint: 'Loaded: salary plus overhead. People are paid for every shift hour, busy or not.' },
-  { path: 'tokensPerBuild', label: 'Tokens per agent run', kind: 'usd', min: 1, max: 400, step: 1, hardMax: 20000, hint: 'One build, including the agent’s own retries.' },
+  { path: 'tokensPerBuild', label: 'Token cost of one agent run', kind: 'usd', min: 1, max: 400, step: 1, hardMax: 20000, hint: 'What one build costs in tokens, including the agent’s own retries. It sets the Tokens line of the bill (agent runs per feature × this) and nothing else.' },
 
-  { path: 'maintPerDay', label: 'Maintenance jobs a day', kind: 'rate', min: 0, max: 10, step: 0.5, hardMax: 40, hint: 'Scheduled agent work such as dependency upgrades. No spec, any hour.' },
+  { path: 'maintPerDay', label: 'Maintenance jobs requested a day', kind: 'rate', min: 0, max: 10, step: 0.5, hardMax: 40, hint: 'Scheduled agent work such as dependency upgrades. No spec, any hour.' },
   { path: 'ciRunners', label: 'CI runners', kind: 'count', min: 1, max: 24, step: 1, hardMax: 200 },
   { path: 'shift', label: 'People’s hours', kind: 'choice', options: [{ value: true, label: '9–5 weekdays' }, { value: false, label: 'Round the clock' }] },
 
@@ -85,8 +85,8 @@ export const DIALS: Record<string, Dial> = Object.fromEntries(([
   { path: 'money.bug', label: 'A bug live in production, per hour', kind: 'usd', min: 0, max: 500, step: 5, hardMax: 100000 },
   { path: 'ciPerRun', label: 'One CI run', kind: 'usd', min: 0, max: 10, step: 0.1, hardMax: 1000 },
 
-  { path: 'weeks', label: 'Run length', kind: 'count', unit: 'weeks', min: 4, max: 104, step: 1 },
-  { path: 'seeds', label: 'Runs (random seeds)', kind: 'count', min: 1, max: 25, step: 1, hint: 'Every number is the median of this many runs.' },
+  { path: 'weeks', label: 'Length of each simulation', kind: 'count', unit: 'weeks', min: 4, max: 104, step: 1 },
+  { path: 'seeds', label: 'Simulations', kind: 'count', min: 1, max: 25, step: 1, hardMax: 99, hint: 'How many times the factory is played through, each with different luck. Every number shown is the median across them.' },
 ] as Dial[]).map((d) => [d.path, d]));
 
 export const HEADLINE = ['featuresPerDay', 'humans', 'agents', 'bugRate', 'review.share', 'prod.mode', 'money.salary', 'tokensPerBuild'];
@@ -100,7 +100,7 @@ export const DRAWERS: Drawer[] = [
   { id: 'production', title: 'Production', note: 'Monitoring catches a share of bugs after about the time to notice. A customer reports the rest (see Customer report under Step times).',
     dials: ['detect.humans.p', 'detect.humans.mean', 'detect.humans.cv', 'detect.agents.p', 'detect.agents.mean', 'detect.agents.cv', 'prod.dupes'] },
   { id: 'money', title: 'Money', dials: ['money.delay', 'money.bug', 'ciPerRun'] },
-  { id: 'run', title: 'Run', dials: ['weeks', 'seeds'] },
+  { id: 'run', title: 'Simulation', dials: ['weeks', 'seeds'] },
 ];
 
 /** The dials a station on the floor opens when clicked. */
@@ -129,12 +129,15 @@ export const MONEY_PRESETS: { id: keyof typeof MONEY; label: string }[] = [{ id:
 /** $1,000 per person per working day ÷ the baseline's builds per week (57.78): what StrongDM's bar comes to per agent run. */
 export const STRONGDM_TOKENS_PER_BUILD = 259.59;
 
+/** What "the default factory" is, in words. */
+export const DEFAULT_FACTORY = `${DEFAULTS.humans} people, ${DEFAULTS.agents} coding agents`;
+
 export interface Preset { id: string; label: string; blurb: string; over: Overrides }
 /** Example factories to start from. Each is an experiment from the model's write-up. */
 export const PRESETS: Preset[] = [
-  { id: 'baseline', label: 'The default factory', blurb: '3 people, 8 coding agents, 3 features a day.', over: {} },
-  { id: 'agents', label: 'Busier (4.5 features a day), with 16 agents', blurb: 'More work, and twice the agents to do it.', over: { featuresPerDay: 4.5, agents: 16 } },
-  { id: 'person', label: 'Busier (4.5 features a day), with a 4th person', blurb: 'More work, and one more person.', over: { featuresPerDay: 4.5, humans: 4 } },
+  { id: 'baseline', label: `The default factory: ${DEFAULT_FACTORY}`, blurb: '3 features requested a day.', over: {} },
+  { id: 'agents', label: '4.5 features requested a day, with 16 agents', blurb: 'More work, and twice the agents to do it.', over: { featuresPerDay: 4.5, agents: 16 } },
+  { id: 'person', label: '4.5 features requested a day, with a 4th person', blurb: 'More work, and one more person.', over: { featuresPerDay: 4.5, humans: 4 } },
   { id: 'careful', label: 'Careful review', blurb: 'Reviews take 100 minutes and catch 80% of bugs; diagnosis halves to 1.5 hours.', over: { review: { mean: 1.67, catch: 0.8 }, diagnose: { mean: 1.5 } } },
   { id: 'noreview', label: 'No human review', blurb: 'Changes merge straight after the AI judge.', over: { review: { share: 0 } } },
   { id: 'strongdm', label: '$1,000 of tokens per person a day', blurb: 'About $260 an agent run.', over: { tokensPerBuild: STRONGDM_TOKENS_PER_BUILD } },

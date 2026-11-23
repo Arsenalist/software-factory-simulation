@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { Metrics, Money, Trace } from '../engine';
 import { createEngine, type Engine } from '../engine/client';
-import { DEFAULTS, HEADLINE, PRESETS, activePreset, applyPreset, decodeHash, encodeHash, sameSettings, setPath, toCfg, type FloorStation, type Settings } from '../model/settings';
+import { DEFAULTS, DIALS, HEADLINE, PRESETS, activePreset, applyPreset, decodeHash, encodeHash, sameSettings, setPath, toCfg, type FloorStation, type Settings } from '../model/settings';
 import { BillCard } from './Bill';
-import { DialRow, Drawers, StationCard, StepTimes } from './Dials';
+import { DialRow, Drawers, NumberBox, StationCard, StepTimes } from './Dials';
 import { Stats } from './Stats';
 import { Floor } from '../floor/Floor';
 
@@ -101,7 +101,8 @@ export function App({ useHash }: { useHash: boolean }) {
                     {PRESETS.map((p) => <option value={p.id}>{p.label}</option>)}
                   </select>
                 </label>
-                <span class="sf-run-status" aria-live="polite">{running ? 'Running…' : result ? `${result.settings.seeds} runs in ${Math.max(1, Math.round(result.ms))} ms` : ''}</span>
+                <label class="sf-sims" title={DIALS.seeds.hint}>Simulations <NumberBox d={DIALS.seeds} value={settings.seeds} ctx={ctx} /></label>
+                <span class="sf-run-status" aria-live="polite">{running ? 'Running…' : result ? `ran in ${Math.max(1, Math.round(result.ms))} ms` : ''}</span>
                 <button type="button" class="sf-btn" onClick={() => { lastKey.current = ''; runNow(latest.current); }}>Run</button>
               </div>
             </div>
