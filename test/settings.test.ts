@@ -66,6 +66,15 @@ describe('presets', () => {
     expect(t('strongdm')).toBe('$1,753');
     expect(t('tests')).toBe('$946'); // script.md notes: runMany at the mid dials
   });
+  test('they reproduce the video’s CI and merge numbers (section 4)', () => {
+    const m = (id: string) => { const s = applyPreset(DEFAULTS, PRESETS.find((p) => p.id === id)!); return medianOf(runSeeds(toCfg(s), s.seeds)); };
+    const row = (id: string) => { const r = m(id); return [r.p50.toFixed(1), Math.round(r.humanUtil * 100), Math.round(r.conflictsPerDay * 7)]; };
+    expect(row('baseline')).toEqual(['19.2', 76, 2]);
+    expect(row('ci-slow').slice(0, 2)).toEqual(['21.9', 77]);
+    expect(row('conflicts-10')).toEqual(['21.2', 84, 11]);
+    expect(row('conflicts-20')).toEqual(['26.6', 95, 23]);
+    expect(Math.round(m('double').conflictsPerDay * 7)).toBe(7);
+  });
   test('StrongDM’s bar is $1,000 per person per working day', () => {
     const base = medianOf(runSeeds(BASE));
     expect(((1000 * BASE.humans * 5) / base.buildsPerWeek).toFixed(2)).toBe(STRONGDM_TOKENS_PER_BUILD.toFixed(2));

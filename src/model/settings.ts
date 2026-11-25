@@ -73,7 +73,7 @@ export const DIALS: Record<string, Dial> = Object.fromEntries(([
   pct('review.catch', 'Bugs review catches', 'Of the bugs that reach a reviewer.'),
   pct('review.reject', 'Other review rejections', 'Sent back for reasons that aren’t bugs.'),
   { path: 'review.maint', label: 'Review maintenance changes too', kind: 'toggle' },
-  { path: 'conflictPerMerge', label: 'Conflict chance per merge in flight', kind: 'pct', min: 0, max: 0.2, step: 0.005, hint: 'Per change merged while yours was being built.' },
+  { path: 'conflictPerMerge', label: 'Conflict chance per merge in flight', kind: 'pct', min: 0, max: 0.2, step: 0.005, hint: 'For every change that merges while yours is open, from the start of its build to its own merge. 2% is low: a 2026 study of agent pull requests open at the same time measured about 20%.' },
 
   pct('detect.humans.p', 'People: bugs their alerts catch'),
   { path: 'detect.humans.mean', label: 'People: time to notice', kind: 'hours', min: 0.25, max: 96, step: 0.25, hardMax: 720 }, cv('detect.humans.cv'),
@@ -147,6 +147,10 @@ export const PRESETS: Preset[] = [
   { id: 'maint', label: 'No review on maintenance', blurb: 'People only review features and fixes. Maintenance changes carry a third of the bug rate, 5 in 100, since an upgrade changes far less code than a feature.', over: { maintBugRate: 0.05, review: { maint: false } } },
   { id: 'telemetry', label: 'Agents watch production', blurb: '95% of bugs noticed in about half an hour.', over: { prod: { mode: 'agents' } } },
   { id: 'tests', label: 'Tests catch 80% of bugs', blurb: 'Specs take 30 minutes longer and builds 20% longer.', over: { testCatch: 0.8, spec: { mean: 2.5 }, build: { mean: 0.9 } } },
+  { id: 'ci-slow', label: 'CI takes 2 hours', blurb: 'Instead of 25 minutes. Only agents wait on it.', over: { ci: { mean: 2 } } },
+  { id: 'conflicts-10', label: 'Merge conflicts at 10 in 100', blurb: 'Every change that merges while yours is open has a 10% chance of conflicting with it, up from 2%. Each conflict is a rebuild and another review.', over: { conflictPerMerge: 0.1 } },
+  { id: 'conflicts-20', label: 'Merge conflicts at 20 in 100', blurb: 'About what a 2026 study of agent pull requests measured. Each conflict is a rebuild and another review.', over: { conflictPerMerge: 0.2 } },
+  { id: 'double', label: 'Twice the factory: 6 people, 16 coding agents', blurb: '6 features and 4 maintenance jobs a day, 12 CI runners. Twice the work, almost 4 times the merge conflicts.', over: { humans: 6, agents: 16, ciRunners: 12, featuresPerDay: 6, maintPerDay: 4 } },
   { id: 'norollback', label: 'Bugs you can’t roll back', blurb: 'A day of cleanup before the damage stops.', over: { mitigate: { mean: 24, cv: 1 } } },
   { id: 'clock', label: 'People round the clock', blurb: 'The same team, staffed all 168 hours.', over: { shift: false } },
 ];

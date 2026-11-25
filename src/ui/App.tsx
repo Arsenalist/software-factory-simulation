@@ -6,6 +6,10 @@ import { BillCard } from './Bill';
 import { DialRow, Drawers, NumberBox, StationCard, StepTimes } from './Dials';
 import { Stats } from './Stats';
 import { Floor } from '../floor/Floor';
+import { Tally, type TallyHandle } from '../floor/Tally';
+
+const FLOOR_KEY = 'sf-floor';
+const floorPref = () => { try { return localStorage.getItem(FLOOR_KEY) !== 'off'; } catch { return true; } };
 
 interface Result { settings: Settings; metrics: Metrics; trace: Trace | null; ms: number }
 const simKey = (s: Settings) => JSON.stringify([toCfg(s), s.seeds]);
@@ -19,6 +23,10 @@ export function App({ useHash }: { useHash: boolean }) {
   const [running, setRunning] = useState(true);
   const [focus, setFocus] = useState<FloorStation | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showFloor, setShowFloor] = useState(floorPref);
+  const tally = useRef<TallyHandle>({ paint: null }).current;
+  const onTime = useCallback((t: number) => tally.paint?.(t), [tally]);
+  const toggleFloor = () => setShowFloor((on) => { try { localStorage.setItem(FLOOR_KEY, on ? 'off' : 'on'); } catch { /* private mode */ } if (on) setFocus(null); return !on; });
 
   const engine = useRef<Engine | null>(null);
   const timer = useRef<number | undefined>(undefined);
@@ -88,7 +96,8 @@ export function App({ useHash }: { useHash: boolean }) {
     <div class="sf" onKeyDown={(e) => { if (e.key === 'Enter' && (e.target as HTMLElement).tagName === 'INPUT') runNow(latest.current); }}>
       <div class="sf-main">
         <div class="sf-left">
-          <Floor trace={result?.trace ?? null} settings={result?.settings ?? settings} focus={focus} onSelect={setFocus} />
+          {showFloor && <Floor trace={result?.trace ?? null} settings={result?.settings ?? settings} focus={focus} onSelect={setFocus} onTime={onTime} />}
+          <Tally trace={result?.trace ?? null} live={showFloor} handle={tally} floorShown={showFloor} onToggleFloor={toggleFloor} />
           {focus && <StationCard station={focus} ctx={ctx} onClose={() => setFocus(null)} />}
 
           <section class="sf-headline" aria-label="Main dials">
@@ -129,7 +138,7 @@ export function App({ useHash }: { useHash: boolean }) {
         <div class="sf-more-head">
           <h2>Every assumption is <strong>a dial</strong></h2>
           {!isBaseline && <button type="button" class="sf-link" onClick={() => setSettings(structuredClone(DEFAULTS))}>Reset everything to the defaults</button>}
-          <p>Every other parameter of the model. You can also click a station on the floor to open its dials.</p>
+          <p>Every other parameter of the model.{showFloor ? ' You can also click a station on the floor to open its dials.' : ''}</p>
         </div>
         <Drawers ctx={ctx} defaults={DEFAULTS} />
       </section>

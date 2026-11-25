@@ -128,3 +128,45 @@ export function createPlayback(trace: Trace, caps: { humans: number; agents: num
     },
   };
 }
+
+// ---- what shipped, week by week ----
+export type Shipped = 'feature' | 'maint' | 'fix';
+export const SHIPPED: Shipped[] = ['feature', 'maint', 'fix'];
+export type ShipCount = Record<Shipped, number>;
+export const HOURS_PER_WEEK = 168;
+
+export interface Tally {
+  /** weeks in the run, warm-up included */
+  weeks: number;
+  hours: number;
+  /** changes merged in each week of the run */
+  perWeek: ShipCount[];
+  total: ShipCount;
+  /** the busiest week's total, for the chart's scale */
+  peak: number;
+  /** changes merged from the start of the run up to and including time t */
+  upTo(t: number): ShipCount;
+}
+export const shipSum = (c: ShipCount) => c.feature + c.maint + c.fix;
+
+/** Counts the changes that reached production (merged, with or without a bug), by kind and by week. */
+export function createTally(trace: Trace): Tally {
+  const { visits, hours } = trace;
+  const times: Record<Shipped, number[]> = { feature: [], maint: [], fix: [] };
+  for (const v of visits) if ((v.out === 'merge' || v.out === 'escape') && v.end <= hours && v.kind !== 'diag') times[v.kind].push(v.end);
+  for (const k of SHIPPED) times[k].sort((a, b) => a - b);
+  const upTo = (t: number): ShipCount => ({
+    feature: upper(times.feature.length, (i) => times.feature[i], t),
+    maint: upper(times.maint.length, (i) => times.maint[i], t),
+    fix: upper(times.fix.length, (i) => times.fix[i], t),
+  });
+  const weeks = Math.max(1, Math.ceil(hours / HOURS_PER_WEEK));
+  const perWeek: ShipCount[] = [];
+  let before = upTo(-1);
+  for (let w = 0; w < weeks; w++) {
+    const now = upTo(Math.min(hours, (w + 1) * HOURS_PER_WEEK));
+    perWeek.push({ feature: now.feature - before.feature, maint: now.maint - before.maint, fix: now.fix - before.fix });
+    before = now;
+  }
+  return { weeks, hours, perWeek, total: upTo(hours), peak: Math.max(1, ...perWeek.map(shipSum)), upTo };
+}

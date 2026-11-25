@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { BASE, mergeCfg, seedFor, sim, type Station } from '../src/engine';
-import { createPlayback, STATIONS } from '../src/floor/playback';
+import { createPlayback, createTally, SHIPPED, shipSum, STATIONS } from '../src/floor/playback';
 
 const caps = { humans: BASE.humans, agents: BASE.agents, ciRunners: BASE.ciRunners, shift: true };
 const run = sim(BASE, seedFor(0), true);
@@ -74,4 +74,29 @@ test('an overloaded factory still plays back (queues that never drain)', () => {
   const s = p.at(p.hours - 1, 40);
   expect(s.queueLen.spec + s.queueLen.review).toBeGreaterThan(100);
   expect(s.queues.spec.length).toBeLessThanOrEqual(40);
+});
+
+describe('the weekly tally', () => {
+  const tally = createTally(run.trace!);
+  const { warmEnd, hours } = run.trace!;
+
+  test('the weeks add up to the whole run', () => {
+    expect(tally.weeks).toBe(26);
+    expect(tally.perWeek.length).toBe(26);
+    for (const k of SHIPPED) expect(tally.perWeek.reduce((a, w) => a + w[k], 0)).toBe(tally.total[k]);
+    expect(tally.upTo(hours)).toEqual(tally.total);
+    expect(tally.peak).toBe(Math.max(...tally.perWeek.map(shipSum)));
+  });
+
+  test('features shipped after warm-up are the model’s own count', () => {
+    const measured = tally.total.feature - tally.upTo(warmEnd - 1e-9).feature;
+    expect(measured).toBe(Math.round((run.featuresPerDay * (hours - warmEnd)) / 24));
+  });
+
+  test('the running count only grows, and a week in progress is part of its week', () => {
+    let last = 0;
+    for (let t = 0; t <= hours; t += 37.5) { const n = shipSum(tally.upTo(t)); expect(n).toBeGreaterThanOrEqual(last); last = n; }
+    const mid = tally.upTo(10 * 168 + 80), start = tally.upTo(10 * 168);
+    expect(mid.feature - start.feature).toBeLessThanOrEqual(tally.perWeek[10].feature);
+  });
 });

@@ -309,3 +309,33 @@
 .sf-steps-row { display: flex; flex-wrap: wrap; gap: 0.5rem 1.75rem; }
 .sf-step { display: inline-flex; align-items: center; gap: 0.5em; color: var(--sf-muted); }
 .sf-step .sf-num { font-size: 1.05rem; }
+
+/* ---------- shipped, week by week: a fixed-height strip however long the run ---------- */
+.sf-tally { display: grid; gap: 0.45rem; min-width: 0; }
+.sf-tally-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.2rem 1.5rem; }
+.sf-tally-head h2 { font-size: 1.25rem; }
+.sf-tally-head .sf-link { font-size: 0.9rem; }
+.sf-tally-read { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.1rem 1.5rem; font-size: 0.85rem; color: var(--sf-muted); }
+.sf-tally-figs, .sf-tally-kinds { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.1rem 1rem; }
+.sf-tally-read b { font-family: var(--sf-mono); font-size: 1rem; color: var(--sf-ink); }
+.sf-tally-scope { font-weight: 600; color: var(--sf-ink); min-width: 4.6em; }
+.sf-tally-kinds > span { display: inline-flex; align-items: baseline; gap: 0.35em; }
+.sf-tally-kinds b { display: inline-block; min-width: 2ch; text-align: right; }
+.sf-tally-kinds i { align-self: center; width: 0.75em; height: 0.75em; border-radius: 2px; }
+.sf-tally i.is-feature { background: var(--sf-pine); }
+.sf-tally i.is-maint { background: color-mix(in srgb, var(--sf-muted) 55%, var(--sf-card)); }
+.sf-tally i.is-fix { background: var(--sf-rust); }
+.sf-tally-chart { display: flex; align-items: stretch; gap: 3px; height: 4.25rem; border-bottom: 2px solid var(--sf-ink); }
+.sf-tally-chart.is-tight, .sf-tally-axis.is-tight { gap: 1px; }
+.sf-tally-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column-reverse; position: relative; }
+.sf-tally-col i { display: block; flex: none; min-height: 0; transition: height 0.25s ease; }
+.sf-tally-col i + i { box-shadow: 0 1px 0 var(--sf-paper); }
+.sf-tally-col i.is-ahead { height: 2px; background: var(--sf-rule); box-shadow: none; }
+.sf-tally-col.is-now::after { content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 3px; background: var(--sf-ink); }
+.sf-tally-col.is-hot { background: var(--sf-pine-wash); }
+.sf-tally-axis { display: flex; gap: 3px; height: 1rem; font-family: var(--sf-mono); font-size: 0.7rem; color: var(--sf-muted); }
+.sf-tally-axis span { flex: 1 1 0; min-width: 0; display: flex; justify-content: center; }
+.sf-tally-axis em { font-style: normal; white-space: nowrap; }
+.sf-tally-note { font-size: 0.8rem; color: var(--sf-muted); }
+@media (max-width: 1079px) { .sf-tally { order: 1; } }
+@media (max-width: 700px) { .sf-tally-chart { height: 3.5rem; gap: 2px; } .sf-tally-axis { gap: 2px; } }

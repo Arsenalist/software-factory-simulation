@@ -16,7 +16,7 @@ const STATS: Stat[] = [
   { key: 'diagShare', label: 'Diagnosis share', fmt: pct, del: delta.pts, note: 'Of people’s busy hours, the part spent on production bugs.' },
   { key: 'at9', label: '9am review pile', fmt: n1, del: delta.n1, note: 'Changes waiting for review when people walk in.' },
   { key: 'bugLivePerF', label: 'Bug-hours live per feature', fmt: (x) => `${n1(x)} h`, del: delta.hours, note: 'Hours bugs spent live in production, per feature shipped.' },
-  { key: 'conflictsPerDay', label: 'Merge conflicts a day', fmt: n1, del: delta.n1, note: 'Each one goes back for a rebuild.' },
+  { key: 'conflictsPerDay', label: 'Merge conflicts a day', fmt: n1, del: delta.n1, note: 'Each one goes back for a rebuild, then through CI, the judge and review again.' },
   { key: 'tokensPerWorkday', label: 'Token spend a working day', fmt: usd, del: delta.usd, note: 'Every agent run in a week (features, maintenance, fixes, rebuilds), spread over 5 working days.' },
 ];
 

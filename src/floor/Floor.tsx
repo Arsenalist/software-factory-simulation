@@ -6,7 +6,7 @@ import { createPlayback, type FloorState, type Playback } from './playback';
 import type { FloorScene, Palette } from './scene';
 import { Diagram } from './Diagram';
 
-export interface FloorProps { trace: Trace | null; settings: Settings; focus: FloorStation | null; onSelect: (s: FloorStation | null) => void; force2d?: boolean }
+export interface FloorProps { trace: Trace | null; settings: Settings; focus: FloorStation | null; onSelect: (s: FloorStation | null) => void; force2d?: boolean; /** called every frame with the playback clock */ onTime?: (t: number) => void }
 
 /** One sim week plays in about 60 s at 1×. */
 const HOURS_PER_SECOND = 168 / 60;
@@ -22,7 +22,8 @@ function hasWebGL() {
   try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; }
 }
 
-export function Floor({ trace, settings, focus, onSelect, force2d }: FloorProps) {
+export function Floor({ trace, settings, focus, onSelect, force2d, onTime }: FloorProps) {
+  const onTimeRef = useRef(onTime); onTimeRef.current = onTime;
   const root = useRef<HTMLElement>(null), stage = useRef<HTMLDivElement>(null), canvas = useRef<HTMLCanvasElement>(null);
   const labelEls = useRef<Partial<Record<FloorStation, HTMLDivElement>>>({});
   const clockEl = useRef<HTMLDivElement>(null), scrubEl = useRef<HTMLInputElement>(null), pileEl = useRef<HTMLDivElement>(null), weekEl = useRef<HTMLSpanElement>(null);
@@ -57,6 +58,7 @@ export function Floor({ trace, settings, focus, onSelect, force2d }: FloorProps)
 
     const paint = (st: FloorState, pbk: Playback) => {
       const c = clock(st.t);
+      onTimeRef.current?.(st.t);
       if (clockEl.current) {
         const [time, day, shift] = clockEl.current.children as unknown as HTMLElement[];
         time.textContent = `${c.day} ${c.time}`;
@@ -191,7 +193,7 @@ export function Floor({ trace, settings, focus, onSelect, force2d }: FloorProps)
 
 /** What hovering a station tells you: its queue now, its load and its average wait over the run. */
 export function stationFacts(id: FloorStation, pb: Playback, state: FloorState | null, s: Settings): { rows: [string, string][]; note?: string } {
-  if (id === 'merge') return { rows: [['Merged a day', n1(pb.merge.mergesPerDay)], ['Conflicts a day', n1(pb.merge.conflictsPerDay)]], note: 'A conflict sends the change back for a rebuild.' };
+  if (id === 'merge') return { rows: [['Merged a day', n1(pb.merge.mergesPerDay)], ['Conflicts a day', n1(pb.merge.conflictsPerDay)]], note: 'A conflict sends the change back for a rebuild, then through CI, the judge and review again.' };
   if (id === 'production') return {
     rows: [['Bugs live now', String(state?.liveBugs.length ?? 0)], ['Bugs escaping a day', n1(pb.production.escapedPerDay)], ['Average time live', fmtHours(pb.production.avgLiveHours)], ['Found by a customer', pct(pb.production.byCustomer)]],
     note: s.prod.mode === 'agents' ? 'Agents read the telemetry.' : 'People watch the alerts.',

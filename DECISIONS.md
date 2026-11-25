@@ -52,3 +52,13 @@ HANDOFF.md settled the design. These are the gaps I filled while building v1, ea
 - **"Careful review" has 4 people**, as in the video's section 8, and says so in its label ($1,095).
 - **3 no-review presets** for the bills the video's section 10 names: with 2 people ($1,184), with agents watching production ($696), and with tests catching 80% ($956).
 - **"People-hours per feature" is a readout** beside People load: the 4.2 the video's sizing rule starts from.
+
+## Presets for the script's section 4, CI and merges (2026-11-23)
+- **4 presets** for the runs the video's section 4 names: CI at 2 hours (19.2 h → 21.9 h, people 77%), merge conflicts at 10 in 100 (about 11 a week, 84% busy) and at 20 in 100 (about 23 a week, 95% busy, 26.6 h), and twice the factory (6 people, 16 agents, 12 CI runners, 6 features and 4 maintenance jobs a day: about 7 conflicts a week against 2).
+- **The conflict dial's hint says what "in flight" covers**, from the start of a change's build to its own merge, so time spent waiting for review counts. The readout and the merge point's note say a conflict goes through review again, which is the point the video makes.
+- **The readout stays "Merge conflicts a day"**; the video says them per week (× 7).
+
+## Shipped week by week, and hiding the floor (2026-11-25)
+- **A strip under the floor counts what reached production each week**: one column a week, stacked into features, maintenance and fixes, with the week's count, the count so far and the whole run above it. It follows the floor's clock, so the columns fill in as the run plays. The strip is the same height for 4 weeks or 104; the columns get thinner.
+- **The counts are from the one run that plays on the floor**, warm-up weeks included, so they won't match "Features shipped a day" exactly: that is the median of all the runs, measured after warm-up.
+- **"Hide the factory floor" removes the 3D floor** and frees its WebGL context. The strip then shows the whole run. The choice is kept in `localStorage`, not in the share link.
